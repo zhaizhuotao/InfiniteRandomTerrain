@@ -32,7 +32,7 @@ RenderSettings:
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
-  m_DefaultReflectionMode: 0
+  m_DefaultReflectionMode: 1
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
@@ -225,6 +225,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   offset: {x: 0, y: 0, z: 0}
   rotation: {x: 0, y: 0, z: 0}
+  _material: {fileID: 2100000, guid: 2c652853410c24326a8eb2ed8e8841b8, type: 2}
 --- !u!4 &668870768
 Transform:
   m_ObjectHideFlags: 0
