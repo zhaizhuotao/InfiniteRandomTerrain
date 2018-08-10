@@ -82,6 +82,7 @@ public class SurfaceCreator : MonoBehaviour {
     }
 	// Use this for initialization
 	void Start () {
+        //shader内部无法定义属性的值，所有属性的值都必须通过脚本写入
         float[] array = new float[]{151,160,137, 91, 90, 15,131, 13,201, 95, 96, 53,194,233,  7,225,
         140, 36,103, 30, 69,142,  8, 99, 37,240, 21, 10, 23,190,  6,148,
         247,120,234, 75,  0, 26,197, 62, 94,252,219,203,117, 35, 11, 32,
@@ -116,6 +117,17 @@ public class SurfaceCreator : MonoBehaviour {
         222,114, 67, 29, 24, 72,243,141,128,195, 78, 66,215, 61,156,180};
         _material.SetFloatArray("hash",array);
         _material.SetFloat("hashMask", 255);
+        List<Vector4> gradients2DList = new List<Vector4>();
+        gradients2DList.Add(new Vector4(1, 0,0,0));
+        gradients2DList.Add(new Vector4(-1, 0,0,0));
+        gradients2DList.Add(new Vector4(0, 1,0,0));
+        gradients2DList.Add(new Vector4(0, -1,0,0));
+        gradients2DList.Add(new Vector4(1, 1,0,0).normalized);
+        gradients2DList.Add(new Vector4(-1, 1,0,0).normalized);
+        gradients2DList.Add(new Vector4(1, -1, 0, 0).normalized);
+        gradients2DList.Add(new Vector4(-1, -1, 0, 0).normalized);
+        _material.SetVectorArray("gradients2D", gradients2DList);
+        _material.SetInt("gradientsMask2D",7);
 	}
 	
 	// Update is called once per frame

@@ -3,19 +3,20 @@
 fixed gradients1D[2] = {
         1, -1
     };
-fixed gradientsMask1D = 1;
+float gradientsMask1D = 1;
 
-fixed2 gradients2D[8] = {
-    fixed2( 1, 0),
-    fixed2(-1, 0),
-    fixed2( 0, 1),
-    fixed2( 0,-1),
-    normalize(fixed2( 1, 1)),
-    normalize(fixed2(-1, 1)),
-    normalize(fixed2( 1,-1)),
-    normalize(fixed2(-1,-1))
-};
-fixed gradientsMask2D = 7;
+float4 gradients2D[8];
+//float2 gradients2D[8] = {
+//    float2( 1, 0),
+//    float2(-1, 0),
+//    float2( 0, 1),
+//    float2( 0,-1),
+//    normalize(float2( 1, 1)),
+//    normalize(float2(-1, 1)),
+//    normalize(float2( 1,-1)),
+//    normalize(float2(-1,-1))
+//};
+int gradientsMask2D;
 
 fixed3 gradients3D[16] = {
     fixed3( 1, 1, 0),
@@ -65,47 +66,93 @@ float Dot(float3 g, float x, float y, float z)
 }
 float Value2D(float3 myPoint, float frequency)
 {
+    //将坐标从[-0.5,0.5]映射到[0,1]
     myPoint.x = myPoint.x + 0.5;
     myPoint.y = myPoint.y + 0.5;
+    //将坐标从[0,1]映射到[0,255]
     myPoint.x = myPoint.x * hashMask;
     myPoint.y = myPoint.y * hashMask;
+    //这时才能使用坐标值作为下标值来访问数组
     myPoint = frequency * myPoint;
 
     int ix0 = floor(myPoint.x);
     int iy0 = floor(myPoint.y);
     float tx = myPoint.x - (float)ix0;
     float ty = myPoint.y - (float)iy0;
-    //return tx;
+
     ix0 = ix0 % hashMask;
     iy0 = iy0 % hashMask;
     int ix1 = ix0 + 1;
     int iy1 = iy0 + 1;
-    //return (float)ix0 / (float)hashMask;
+   
     int h0 = hash[ix0];
     int h1 = hash[ix1];
-    //return (float)h0/hashMask;
+   
     int h00 = hash[h0 + iy0];
     int h10 = hash[h1 + iy0];
     int h01 = hash[h0 + iy1];
     int h11 = hash[h1 + iy1];
-    //return (float)h11 / hashMask;
     tx = Smooth(tx);
     ty = Smooth(ty);
-    return lerp(h00, h10, tx);
-    return lerp(lerp(h00, h10, tx),lerp(h01, h11, tx),ty) * (1 / hashMask);
-    //NoiseSample sample;
-    //sample.value = lerp(
-    //    lerp(h00, h10, tx),
-    //    lerp(h01, h11, tx),
-    //    ty) * (1f / hashMask);
-    //sample.derivative.x = 0f;
-    //sample.derivative.y = 0f;
-    //sample.derivative.z = 0f;
-    //sample.derivative *= frequency;
-    //return sample;
+    float a = h00;
+    float b = h10 - h00;
+    float c = h01 - h00;
+    float d = h11 - h01 - h10 + h00;
+    return (a + b * tx + (c + d * tx) * ty) / hashMask;
 }
+float Perlin2D (float3 myPoint, float frequency) {
+    //将坐标从[-0.5,0.5]映射到[0,1]
+    myPoint.x = myPoint.x + 0.5;
+    myPoint.y = myPoint.y + 0.5;
+    //将坐标从[0,1]映射到[0,255]
+    myPoint.x = myPoint.x * hashMask;
+    myPoint.y = myPoint.y * hashMask;
+    //这时才能使用坐标值作为下标值来访问数组
+    myPoint *= frequency;
+    int ix0 = floor(myPoint.x);
+    int iy0 = floor(myPoint.y);
+    float tx0 = myPoint.x - (float)ix0;
+    float ty0 = myPoint.y - (float)iy0;
+    float tx1 = tx0 - 1;
+    float ty1 = ty0 - 1;
+    ix0 = ix0 % hashMask;
+    iy0 = iy0 % hashMask;
+    int ix1 = ix0 + 1;
+    int iy1 = iy0 + 1;
+    
+    int h0 = hash[ix0];
+    int h1 = hash[ix1];
+
+    float2 g00 = gradients2D[(int)hash[h0 + iy0] % (int)gradientsMask2D].xy;
+    float2 g10 = gradients2D[(int)hash[h1 + iy0] % (int)gradientsMask2D].xy;
+    float2 g01 = gradients2D[(int)hash[h0 + iy1] % (int)gradientsMask2D].xy;
+    float2 g11 = gradients2D[(int)hash[h1 + iy1] % (int)gradientsMask2D].xy;
+
+    float v00 = Dot(g00, tx0, ty0);
+    float v10 = Dot(g10, tx1, ty0);
+    float v01 = Dot(g01, tx0, ty1);
+    float v11 = Dot(g11, tx1, ty1);
+
+    float tx = Smooth(tx0);
+    float ty = Smooth(ty0);
+
+    float a = v00;
+    float b = v10 - v00;
+    float c = v01 - v00;
+    float d = v11 - v01 - v10 + v00;
+
+    return (a + b * tx + (c + d * tx) * ty);
+}
+
 float Perlin3D(float3 mypoint, float frequency)
 {
+    //将坐标从[-0.5,0.5]映射到[0,1]
+    mypoint.x = mypoint.x + 0.5;
+    mypoint.y = mypoint.y + 0.5;
+    //将坐标从[0,1]映射到[0,255]
+    mypoint.x = mypoint.x * hashMask;
+    mypoint.y = mypoint.y * hashMask;
+    //这时才能使用坐标值作为下标值来访问数组
     mypoint = frequency * mypoint;
     int ix0 = floor(mypoint.x);
     int iy0 = floor(mypoint.y);
@@ -150,6 +197,16 @@ float Perlin3D(float3 mypoint, float frequency)
     float tx = Smooth(tx0);
     float ty = Smooth(ty0);
     float tz = Smooth(tz0);
+
+    float a = v000;
+    float b = v100 - v000;
+    float c = v010 - v000;
+    float d = v001 - v000;
+    float e = v110 - v010 - v100 + v000;
+    float f = v101 - v001 - v100 + v000;
+    float g = v011 - v001 - v010 + v000;
+    float h = v111 - v011 - v101 + v001 - v110 + v010 + v100 - v000;
+    //return a + b * tx + (c + e * tx) * ty + (d + f * tx + (g + h * tx) * ty) * tz;
     return lerp(
         lerp(lerp(v000, v100, tx), lerp(v010, v110, tx), ty),
         lerp(lerp(v001, v101, tx), lerp(v011, v111, tx), ty),
