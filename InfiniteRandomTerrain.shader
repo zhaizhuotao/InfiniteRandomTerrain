@@ -28,9 +28,10 @@
 		fixed4 _Color;
         void vert (inout appdata_full v,out Input o) {
             UNITY_INITIALIZE_OUTPUT(Input,o);
-            v.vertex.y = Perlin2D(v.vertex.xzy,6)* 0.01;
+            v.vertex.y = 0.05 * (Perlin2D(v.vertex.xzy,8) + Perlin2D(v.vertex.xzy,4) + Perlin2D(v.vertex.xzy,2));
+            //v.vertex.y = Value2D(v.vertex.xzy,4)* 0.1;
             //o.customColor = fixed3(v.vertex.z,0,0);//x,z的取值范围是[-0.5,0.5],y的值保持不变。
-            o.customColor = fixed3(Perlin2D(v.vertex.xzy,6).xxx);
+            o.customColor = fixed3(0,0.5 * (Perlin2D(v.vertex.xzy,8) + Perlin2D(v.vertex.xzy,4) + Perlin2D(v.vertex.xzy,2)).x,0);
         }
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
 		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
