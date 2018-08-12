@@ -4,6 +4,7 @@
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
 		_Metallic ("Metallic", Range(0,1)) = 0.0
+        _PositionOffset("PositionOffset",Vector) = (0,0,0)
 	}
 	SubShader {
 		Tags { "RenderType"="Opaque" }
@@ -26,12 +27,15 @@
 		half _Glossiness;
 		half _Metallic;
 		fixed4 _Color;
+        float4 _PositionOffset;
         void vert (inout appdata_full v,out Input o) {
             UNITY_INITIALIZE_OUTPUT(Input,o);
-            v.vertex.y = 0.05 * (Perlin2D(v.vertex.xzy,8) + Perlin2D(v.vertex.xzy,4) + Perlin2D(v.vertex.xzy,2));
+            float3 pos = v.vertex.xzy + _PositionOffset.xzy;
+            float randomValue = Perlin2D(pos,8) + Perlin2D(pos,4) + Perlin2D(pos,2);
+            v.vertex.y = 0.05 * randomValue;
             //v.vertex.y = Value2D(v.vertex.xzy,4)* 0.1;
             //o.customColor = fixed3(v.vertex.z,0,0);//x,z的取值范围是[-0.5,0.5],y的值保持不变。
-            o.customColor = fixed3(0,0.5 * (Perlin2D(v.vertex.xzy,8) + Perlin2D(v.vertex.xzy,4) + Perlin2D(v.vertex.xzy,2)).x,0);
+            o.customColor = fixed3(0,randomValue,(1-randomValue)*(1-randomValue));
         }
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
 		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
