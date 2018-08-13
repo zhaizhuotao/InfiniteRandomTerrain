@@ -28,6 +28,26 @@ public class SurfaceCreator : MonoBehaviour {
     public Vector3 rotation;
     [SerializeField]
     private Material _material;
+ 
+    private void OnDrawGizmosSelected()
+    {
+        if (mesh == null)
+            return;
+        if (mesh.vertices.Length == 0)
+            return;
+        Vector3[] modifiedVertex = mesh.vertices;
+        Vector3[] modifiedNormal = mesh.normals;
+        float scale = 1f / resolution;
+        if (showNormals && vertices != null)
+        {
+            Gizmos.color = Color.yellow;
+            for (int v = 0; v < vertices.Length; v++)
+            {
+                Gizmos.DrawRay(modifiedVertex[v], modifiedNormal[v] * scale);    
+                //Gizmos.DrawRay(vertices[v], normals[v]* scale);
+            }
+        }
+    }
     public void Refresh()
     {
         if (resolution != currentResolution)
@@ -132,7 +152,7 @@ public class SurfaceCreator : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+        
 	}
     private int currentResolution;
     private Mesh mesh;
@@ -188,18 +208,7 @@ public class SurfaceCreator : MonoBehaviour {
             }
         }
         mesh.triangles = triangles;
-    }
-    private void OnDrawGizmosSelected()
-    {
-        float scale = 1f / resolution;
-        if (showNormals && vertices != null)
-        {
-            Gizmos.color = Color.yellow;
-            for (int v = 0; v < vertices.Length; v++)
-            {
-                Gizmos.DrawRay(vertices[v], normals[v] * scale);
-            }
-        }
+
     }
     private void CalculateNormals()
     {

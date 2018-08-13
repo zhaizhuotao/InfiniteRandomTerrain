@@ -2,6 +2,7 @@
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
+        _SecondTex("第二纹理",2D) = "white"{}
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
 		_Metallic ("Metallic", Range(0,1)) = 0.0
         _PositionOffset("PositionOffset",Vector) = (0,0,0)
@@ -31,11 +32,14 @@
         void vert (inout appdata_full v,out Input o) {
             UNITY_INITIALIZE_OUTPUT(Input,o);
             float3 pos = v.vertex.xzy + _PositionOffset.xzy;
-            float randomValue = Perlin2D(pos,8) + Perlin2D(pos,4) + Perlin2D(pos,2);
+            //float randomValue = Perlin2D(pos,8).value + Perlin2D(pos,4).value + Perlin2D(pos,2).value;
+            float randomValue = Value2D(pos,8).value + Value2D(pos,4).value + Value2D(pos,2).value;
+
             v.vertex.y = 0.05 * randomValue;
-            //v.vertex.y = Value2D(v.vertex.xzy,4)* 0.1;
-            //o.customColor = fixed3(v.vertex.z,0,0);//x,z的取值范围是[-0.5,0.5],y的值保持不变。
-            o.customColor = fixed3(0,randomValue,(1-randomValue)*(1-randomValue));
+            //float3 mynormal = normalize(Perlin2D(pos,8).derivative + Perlin2D(pos,4).derivative + Perlin2D(pos,2).derivative);
+            float3 mynormal = normalize(Value2D(pos,8).derivative + Value2D(pos,4).derivative + Value2D(pos,2).derivative);
+            v.normal = normalize(float3(-mynormal.x,1,-mynormal.y));
+            o.customColor = fixed3(0,randomValue,0);
         }
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
 		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.

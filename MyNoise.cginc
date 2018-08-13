@@ -53,16 +53,11 @@ float Dot(float3 g, float x, float y, float z)
 {
     return g.x * x + g.y * y + g.z * z;
 }
-float Value2D(float3 myPoint, float frequency)
+NoiseSample Value2D(float3 myPoint, float frequency)
 {
-    //将坐标从[-0.5,0.5]映射到[0,1]
+    //将坐标从[-0.5,0.5]映射到[0.5,1.5]
     myPoint.x = myPoint.x + 1.0;
     myPoint.y = myPoint.y + 1.0;
-    //将坐标从[0,1]映射到[0,255]
-    //myPoint.x = frequency * myPoint.x * 128;
-    //myPoint.y = frequency * myPoint.y * 128;
-    //这时才能使用坐标值作为下标值来访问数组
-    //myPoint = frequency * myPoint;
     myPoint.x = frequency * myPoint.x;
     myPoint.y = frequency * myPoint.y;
 
@@ -82,22 +77,27 @@ float Value2D(float3 myPoint, float frequency)
     int h10 = hash[h1 + iy0];
     int h01 = hash[h0 + iy1];
     int h11 = hash[h1 + iy1];
+    float dtx = SmoothDerivative(tx);
+    float dty = SmoothDerivative(ty);
     tx = Smooth(tx);
     ty = Smooth(ty);
     float a = h00;
     float b = h10 - h00;
     float c = h01 - h00;
     float d = h11 - h01 - h10 + h00;
-    return (a + b * tx + (c + d * tx) * ty) / hashMask;
+    NoiseSample mysample;
+    mysample.value = (a + b * tx + (c + d * tx) * ty) / hashMask;
+    mysample.derivative.x = (b + d * ty) * dtx;
+    mysample.derivative.y = (c + d * tx) * dty;
+    mysample.derivative.z = 0;
+    mysample.derivative *= frequency;
+    return mysample;
 }
-float Perlin2D (float3 myPoint, float frequency) {
-    //将坐标从[-0.5,0.5]映射到[0,1]
+NoiseSample Perlin2D (float3 myPoint, float frequency) {
+    //将坐标从[-0.5,0.5]映射到[0.5,1.5]
     myPoint.x = myPoint.x + 1;
     myPoint.y = myPoint.y + 1;
-    //将坐标从[0,1]映射到[0,255]
-    //myPoint.x = myPoint.x * hashMask;
-    //myPoint.y = myPoint.y * hashMask;
-    //这时才能使用坐标值作为下标值来访问数组
+
     myPoint *= frequency;
     int ix0 = floor(myPoint.x);
     int iy0 = floor(myPoint.y);
@@ -123,6 +123,8 @@ float Perlin2D (float3 myPoint, float frequency) {
     float v01 = Dot(g01, tx0, ty1);
     float v11 = Dot(g11, tx1, ty1);
 
+    float dtx = SmoothDerivative(tx0);
+    float dty = SmoothDerivative(ty0);
     float tx = Smooth(tx0);
     float ty = Smooth(ty0);
 
@@ -130,31 +132,18 @@ float Perlin2D (float3 myPoint, float frequency) {
     float b = v10 - v00;
     float c = v01 - v00;
     float d = v11 - v01 - v10 + v00;
+    float2 da = g00;
+    float2 db = g10 - g00;
+    float2 dc = g01 - g00;
+    float2 dd = g11 - g01 - g10 + g00;
+    NoiseSample mysample;
+    mysample.value = (a + b * tx + (c + d * tx) * ty)*1.414;
+    mysample.derivative.xy = da + db * tx + (dc + dd * tx) * ty;
+    mysample.derivative.x += (b + d * ty) * dtx;
+    mysample.derivative.y += (c + d * tx) * dty;
+    mysample.derivative.z = 0;
+    mysample.derivative = mysample.derivative * frequency*1.414;
 
-    return (a + b * tx + (c + d * tx) * ty);
-}
-float Sum (float3 MyPoint, float frequency, int octaves, float lacunarity, float persistence) {
-    float sum = Perlin2D(MyPoint, frequency);
-    float amplitude = 1;
-    float range = 1;
-    //for (int o = 1; o < octaves; o++) {
-    //    frequency *= lacunarity;
-    //    amplitude *= persistence;
-    //    range += amplitude;
-    //    sum += Perlin2D(MyPoint, frequency) * amplitude;
-    //}
-    frequency *= lacunarity;
-        amplitude *= persistence;
-        range += amplitude;
-        sum += Perlin2D(MyPoint, frequency) * amplitude;
-        frequency *= lacunarity;
-        amplitude *= persistence;
-        range += amplitude;
-        sum += Perlin2D(MyPoint, frequency) * amplitude;
-        frequency *= lacunarity;
-        amplitude *= persistence;
-        range += amplitude;
-        sum += Perlin2D(MyPoint, frequency) * amplitude;
-    return sum * (1 / range);
+    return mysample;
 }
 #endif
