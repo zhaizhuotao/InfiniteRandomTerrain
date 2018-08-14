@@ -137,12 +137,12 @@ NoiseSample Perlin2D (float3 myPoint, float frequency) {
     float2 dc = g01 - g00;
     float2 dd = g11 - g01 - g10 + g00;
     NoiseSample mysample;
-    mysample.value = (a + b * tx + (c + d * tx) * ty)*1.414;
+    mysample.value = (a + b * tx + (c + d * tx) * ty);
     mysample.derivative.xy = da + db * tx + (dc + dd * tx) * ty;
     mysample.derivative.x += (b + d * ty) * dtx;
     mysample.derivative.y += (c + d * tx) * dty;
     mysample.derivative.z = 0;
-    mysample.derivative = mysample.derivative * frequency*1.414;
+    mysample.derivative = mysample.derivative * frequency;
 
     return mysample;
 }
