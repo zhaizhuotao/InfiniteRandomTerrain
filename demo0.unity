@@ -38,12 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 11
-  m_GIWorkflowMode: 0
+  m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -145,7 +145,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 2c652853410c24326a8eb2ed8e8841b8, type: 2}
+  - {fileID: 2100000, guid: a6a35d36786cb45f1a394822bdb73b7d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -225,7 +225,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   offset: {x: 0, y: 0, z: 0}
   rotation: {x: 0, y: 0, z: 0}
-  _material: {fileID: 2100000, guid: 2c652853410c24326a8eb2ed8e8841b8, type: 2}
+  _material: {fileID: 2100000, guid: a6a35d36786cb45f1a394822bdb73b7d, type: 2}
 --- !u!4 &668870768
 Transform:
   m_ObjectHideFlags: 0

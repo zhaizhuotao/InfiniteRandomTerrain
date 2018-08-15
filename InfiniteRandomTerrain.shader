@@ -52,7 +52,7 @@
 		void surf (Input IN, inout SurfaceOutputStandard o) {
 			// Albedo comes from a texture tinted by color
             
-			fixed4 c = tex2D (_SecondTex, IN.uv_SecondTex.xy) * float4(IN.localPostion.y * 200,0,0,1);
+			fixed4 c = tex2D (_SecondTex, IN.uv_SecondTex.xy);
 			o.Albedo = c.rgb;
             //o.Albedo = IN.customColor;
 			// Metallic and smoothness come from slider variables
